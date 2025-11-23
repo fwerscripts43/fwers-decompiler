@@ -3,7 +3,7 @@ local attempts = 0
 
 -- Create GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "Fwers Uncopylocks! DECOMPILER"
+gui.Name = "fwers decompiler"
 gui.Parent = game.CoreGui
 
 -- Main Frame
@@ -81,7 +81,7 @@ copyCorner.CornerRadius = UDim.new(0, 4)
 local linkButton = Instance.new("TextButton")
 linkButton.Size = UDim2.new(1, -40, 0, 40)
 linkButton.Position = UDim2.new(0, 20, 0, 215)
-linkButton.Text = "🔗 Copy Discord Link"
+linkButton.Text = "🔗 Get Key"
 linkButton.Font = Enum.Font.GothamBold
 linkButton.TextSize = 18
 linkButton.TextColor3 = Color3.new(1, 1, 1)
@@ -91,10 +91,10 @@ linkButton.Parent = frame
 local linkCorner = Instance.new("UICorner", linkButton)
 linkCorner.CornerRadius = UDim.new(0, 4)
 
--- Status Label
+-- Status Label (above footer)
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -40, 0, 30)
-status.Position = UDim2.new(0, 20, 0, 250)
+status.Position = UDim2.new(0, 20, 1, -60) -- 60px above bottom
 status.BackgroundTransparency = 1
 status.Text = "🔧 Status: Waiting for password..."
 status.Font = Enum.Font.Gotham
@@ -103,7 +103,7 @@ status.TextColor3 = Color3.fromRGB(180, 180, 180)
 status.TextXAlignment = Enum.TextXAlignment.Left
 status.Parent = frame
 
--- Footer
+-- Footer (fixed at bottom)
 local footer = Instance.new("TextLabel")
 footer.Size = UDim2.new(1, 0, 0, 30)
 footer.Position = UDim2.new(0, 0, 1, -30)
@@ -114,18 +114,32 @@ footer.TextSize = 14
 footer.TextColor3 = Color3.fromRGB(180, 180, 180)
 footer.Parent = frame
 
+-- Function to show status and fade out
+local function showStatus(text)
+	status.Text = text
+	status.TextTransparency = 0
+	-- Fade out after 3 seconds
+	spawn(function()
+		wait(3)
+		for i = 0, 1, 0.05 do
+			status.TextTransparency = i
+			wait(0.03)
+		end
+	end)
+end
+
 -- Unlock Button Function
 button.MouseButton1Click:Connect(function()
 	if input.Text == password then
 		title.Text = "✅ Access Granted"
-		status.Text = "🔓 Unlocked. Click 'Copy Game + GUI + Scripts' or 'Copy Discord Link'"
+		showStatus("🔓 Unlocked. Click 'Copy Game + GUI + Scripts' or 'Copy Discord Link'")
 		button.Visible = false
 		input.Visible = false
 		copyButton.Visible = true
 		linkButton.Visible = true
 	else
 		attempts += 1
-		status.Text = "❌ Wrong Password ("..attempts.."/3)"
+		showStatus("❌ Wrong Password ("..attempts.."/3)")
 		if attempts >= 3 then
 			title.Text = "⛔ Too Many Failed Attempts"
 			wait(1)
@@ -136,7 +150,7 @@ end)
 
 -- Copy Game Button Function (includes ReplicatedGUI)
 copyButton.MouseButton1Click:Connect(function()
-	status.Text = "📁 Copying game with scripts & UI..."
+	showStatus("📁 Copying game with scripts & UI...")
 
 	local success, err = pcall(function()
 		local StarterGui = game:GetService("StarterGui")
@@ -146,11 +160,13 @@ copyButton.MouseButton1Click:Connect(function()
 		local cloneUI = gui:Clone()
 		cloneUI.Parent = StarterGui
 
-		-- Clone all GUIs in ReplicatedGUI folder
+		-- Clone all GUIs in ReplicatedGUI folder individually
 		local replicatedGUIs = ReplicatedStorage:FindFirstChild("ReplicatedGUI")
 		if replicatedGUIs then
-			local cloneGUIs = replicatedGUIs:Clone()
-			cloneGUIs.Parent = StarterGui
+			for _, guiObj in pairs(replicatedGUIs:GetChildren()) do
+				local clone = guiObj:Clone()
+				clone.Parent = StarterGui
+			end
 		end
 
 		-- Save the game
@@ -165,14 +181,18 @@ copyButton.MouseButton1Click:Connect(function()
 		-- Cleanup cloned UIs
 		cloneUI:Destroy()
 		if replicatedGUIs then
-			StarterGui:FindFirstChild("ReplicatedGUI"):Destroy()
+			for _, guiObj in pairs(StarterGui:GetChildren()) do
+				if replicatedGUIs:FindFirstChild(guiObj.Name) then
+					guiObj:Destroy()
+				end
+			end
 		end
 
-		status.Text = "✅ Game, ReplicatedGUI & decompiler UI copied successfully!"
+		showStatus("✅ Game, ReplicatedGUI & decompiler UI copied successfully!")
 	end)
 
 	if not success then
-		status.Text = "❌ Failed to copy game: "..tostring(err)
+		showStatus("❌ Failed to copy game: "..tostring(err))
 	end
 end)
 
@@ -180,8 +200,8 @@ end)
 linkButton.MouseButton1Click:Connect(function()
 	if setclipboard then
 		setclipboard("https://discord.gg/RyD3MAse")
-		status.Text = "✅ Discord link copied to clipboard!"
+		showStatus("✅ Discord link copied to clipboard!")
 	else
-		status.Text = "❌ setclipboard not supported!"
+		showStatus("❌ setclipboard not supported!")
 	end
 end)
