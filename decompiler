@@ -62,11 +62,11 @@ button.Parent = frame
 local buttonCorner = Instance.new("UICorner", button)
 buttonCorner.CornerRadius = UDim.new(0, 4)
 
--- Copy Button (hidden)
+-- Copy Game Button (hidden)
 local copyButton = Instance.new("TextButton")
 copyButton.Size = UDim2.new(1, -40, 0, 40)
 copyButton.Position = UDim2.new(0, 20, 0, 165)
-copyButton.Text = "📁 Copy with Scripts!"
+copyButton.Text = "📁 Copy Game + GUI + Scripts"
 copyButton.Font = Enum.Font.GothamBold
 copyButton.TextSize = 18
 copyButton.TextColor3 = Color3.new(1, 1, 1)
@@ -77,10 +77,24 @@ copyButton.Parent = frame
 local copyCorner = Instance.new("UICorner", copyButton)
 copyCorner.CornerRadius = UDim.new(0, 4)
 
+-- Copy Discord Link Button
+local linkButton = Instance.new("TextButton")
+linkButton.Size = UDim2.new(1, -40, 0, 40)
+linkButton.Position = UDim2.new(0, 20, 0, 215)
+linkButton.Text = "🔗 Copy Discord Link"
+linkButton.Font = Enum.Font.GothamBold
+linkButton.TextSize = 18
+linkButton.TextColor3 = Color3.new(1, 1, 1)
+linkButton.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+linkButton.Parent = frame
+
+local linkCorner = Instance.new("UICorner", linkButton)
+linkCorner.CornerRadius = UDim.new(0, 4)
+
 -- Status Label
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -40, 0, 30)
-status.Position = UDim2.new(0, 20, 0, 215)
+status.Position = UDim2.new(0, 20, 0, 250)
 status.BackgroundTransparency = 1
 status.Text = "🔧 Status: Waiting for password..."
 status.Font = Enum.Font.Gotham
@@ -104,10 +118,11 @@ footer.Parent = frame
 button.MouseButton1Click:Connect(function()
 	if input.Text == password then
 		title.Text = "✅ Access Granted"
-		status.Text = "🔓 Unlocked. Click 'Copy with Scripts!'"
+		status.Text = "🔓 Unlocked. Click 'Copy Game + GUI + Scripts' or 'Copy Discord Link'"
 		button.Visible = false
 		input.Visible = false
 		copyButton.Visible = true
+		linkButton.Visible = true
 	else
 		attempts += 1
 		status.Text = "❌ Wrong Password ("..attempts.."/3)"
@@ -119,11 +134,26 @@ button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Copy Button Function
+-- Copy Game Button Function (includes ReplicatedGUI)
 copyButton.MouseButton1Click:Connect(function()
-	status.Text = "📁 Copying game with scripts..."
+	status.Text = "📁 Copying game with scripts & UI..."
 
 	local success, err = pcall(function()
+		local StarterGui = game:GetService("StarterGui")
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+		-- Clone decompiler GUI
+		local cloneUI = gui:Clone()
+		cloneUI.Parent = StarterGui
+
+		-- Clone all GUIs in ReplicatedGUI folder
+		local replicatedGUIs = ReplicatedStorage:FindFirstChild("ReplicatedGUI")
+		if replicatedGUIs then
+			local cloneGUIs = replicatedGUIs:Clone()
+			cloneGUIs.Parent = StarterGui
+		end
+
+		-- Save the game
 		local saveinstance = loadstring(game:HttpGet("https://raw.githubusercontent.com/luau/SynSaveInstance/main/saveinstance.luau"))()
 		saveinstance({
 			FileName = "Fwers Uncopylocks!"..game.PlaceId..".rbxlx",
@@ -132,14 +162,26 @@ copyButton.MouseButton1Click:Connect(function()
 			CreatorTag = "Copied by Fwers Uncopylocks!"
 		})
 
-		status.Text = "✅ Game copied & saved. by Fwers Uncopylocks!"
+		-- Cleanup cloned UIs
+		cloneUI:Destroy()
+		if replicatedGUIs then
+			StarterGui:FindFirstChild("ReplicatedGUI"):Destroy()
+		end
+
+		status.Text = "✅ Game, ReplicatedGUI & decompiler UI copied successfully!"
 	end)
 
 	if not success then
 		status.Text = "❌ Failed to copy game: "..tostring(err)
 	end
+end)
 
-	wait(2)
-	-- Optional shutdown if supported
-	-- pcall(function() game:Shutdown() end)
+-- Copy Discord Link Button Function
+linkButton.MouseButton1Click:Connect(function()
+	if setclipboard then
+		setclipboard("https://discord.gg/RyD3MAse")
+		status.Text = "✅ Discord link copied to clipboard!"
+	else
+		status.Text = "❌ setclipboard not supported!"
+	end
 end)
