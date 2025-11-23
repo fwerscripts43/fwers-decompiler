@@ -3,7 +3,7 @@ local attempts = 0
 
 -- Create GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "fwers decompiler"
+gui.Name = "fwers decompiler" 
 gui.Parent = game.CoreGui
 
 -- Main Frame
@@ -77,10 +77,10 @@ copyButton.Parent = frame
 local copyCorner = Instance.new("UICorner", copyButton)
 copyCorner.CornerRadius = UDim.new(0, 4)
 
--- Copy Discord Link Button
+-- Copy Discord Link Button (moved up)
 local linkButton = Instance.new("TextButton")
 linkButton.Size = UDim2.new(1, -40, 0, 40)
-linkButton.Position = UDim2.new(0, 20, 0, 215)
+linkButton.Position = UDim2.new(0, 20, 0, 200) -- moved up from 215
 linkButton.Text = "🔗 Get Key"
 linkButton.Font = Enum.Font.GothamBold
 linkButton.TextSize = 18
@@ -94,7 +94,7 @@ linkCorner.CornerRadius = UDim.new(0, 4)
 -- Status Label (above footer)
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -40, 0, 30)
-status.Position = UDim2.new(0, 20, 1, -60) -- 60px above bottom
+status.Position = UDim2.new(0, 20, 1, -60)
 status.BackgroundTransparency = 1
 status.Text = "🔧 Status: Waiting for password..."
 status.Font = Enum.Font.Gotham
@@ -118,7 +118,6 @@ footer.Parent = frame
 local function showStatus(text)
 	status.Text = text
 	status.TextTransparency = 0
-	-- Fade out after 3 seconds
 	spawn(function()
 		wait(3)
 		for i = 0, 1, 0.05 do
@@ -148,7 +147,7 @@ button.MouseButton1Click:Connect(function()
 	end
 end)
 
--- Copy Game Button Function (includes ReplicatedGUI)
+-- Copy Game Button Function
 copyButton.MouseButton1Click:Connect(function()
 	showStatus("📁 Copying game with scripts & UI...")
 
@@ -156,11 +155,9 @@ copyButton.MouseButton1Click:Connect(function()
 		local StarterGui = game:GetService("StarterGui")
 		local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-		-- Clone decompiler GUI
 		local cloneUI = gui:Clone()
 		cloneUI.Parent = StarterGui
 
-		-- Clone all GUIs in ReplicatedGUI folder individually
 		local replicatedGUIs = ReplicatedStorage:FindFirstChild("ReplicatedGUI")
 		if replicatedGUIs then
 			for _, guiObj in pairs(replicatedGUIs:GetChildren()) do
@@ -169,7 +166,6 @@ copyButton.MouseButton1Click:Connect(function()
 			end
 		end
 
-		-- Save the game
 		local saveinstance = loadstring(game:HttpGet("https://raw.githubusercontent.com/luau/SynSaveInstance/main/saveinstance.luau"))()
 		saveinstance({
 			FileName = "Fwers Uncopylocks!"..game.PlaceId..".rbxlx",
@@ -178,7 +174,6 @@ copyButton.MouseButton1Click:Connect(function()
 			CreatorTag = "Copied by Fwers Uncopylocks!"
 		})
 
-		-- Cleanup cloned UIs
 		cloneUI:Destroy()
 		if replicatedGUIs then
 			for _, guiObj in pairs(StarterGui:GetChildren()) do
