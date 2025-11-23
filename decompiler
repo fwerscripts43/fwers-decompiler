@@ -62,25 +62,10 @@ button.Parent = frame
 local buttonCorner = Instance.new("UICorner", button)
 buttonCorner.CornerRadius = UDim.new(0, 4)
 
--- Get Key Button (NOW MOVED UP)
-local linkButton = Instance.new("TextButton")
-linkButton.Size = UDim2.new(1, -40, 0, 40)
-linkButton.Position = UDim2.new(0, 20, 0, 160) -- RIGHT UNDER UNLOCK
-linkButton.Text = "🔗 Get Key"
-linkButton.Font = Enum.Font.GothamBold
-linkButton.TextSize = 18
-linkButton.TextColor3 = Color3.new(1, 1, 1)
-linkButton.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
-linkButton.Visible = false
-linkButton.Parent = frame
-
-local linkCorner = Instance.new("UICorner", linkButton)
-linkCorner.CornerRadius = UDim.new(0, 4)
-
--- Copy Game Button (hidden)
+-- Copy Game Button — below Get Key
 local copyButton = Instance.new("TextButton")
 copyButton.Size = UDim2.new(1, -40, 0, 40)
-copyButton.Position = UDim2.new(0, 20, 0, 205) -- moved down to fit ordering
+copyButton.Position = UDim2.new(0, 20, 0, 205)  -- below Get Key
 copyButton.Text = "📁 Copy Game + GUI + Scripts"
 copyButton.Font = Enum.Font.GothamBold
 copyButton.TextSize = 18
@@ -92,7 +77,22 @@ copyButton.Parent = frame
 local copyCorner = Instance.new("UICorner", copyButton)
 copyCorner.CornerRadius = UDim.new(0, 4)
 
--- Status Label (above footer)
+-- Get Key Button (Discord) — positioned **under Unlock**
+local linkButton = Instance.new("TextButton")
+linkButton.Size = UDim2.new(1, -40, 0, 40)
+linkButton.Position = UDim2.new(0, 20, 0, 160)  -- right under Unlock
+linkButton.Text = "🔗 Get Key"
+linkButton.Font = Enum.Font.GothamBold
+linkButton.TextSize = 18
+linkButton.TextColor3 = Color3.new(1, 1, 1)
+linkButton.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+linkButton.Visible = false
+linkButton.Parent = frame
+
+local linkCorner = Instance.new("UICorner", linkButton)
+linkCorner.CornerRadius = UDim.new(0, 4)
+
+-- Status Label
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -40, 0, 30)
 status.Position = UDim2.new(0, 20, 1, -60)
@@ -115,7 +115,7 @@ footer.TextSize = 14
 footer.TextColor3 = Color3.fromRGB(180, 180, 180)
 footer.Parent = frame
 
--- Fade Status
+-- Status fade function
 local function showStatus(text)
     status.Text = text
     status.TextTransparency = 0
@@ -148,17 +148,18 @@ button.MouseButton1Click:Connect(function()
     end
 end)
 
--- Copy Game Button Logic
+-- Copy Game Logic
 copyButton.MouseButton1Click:Connect(function()
     showStatus("📁 Copying game with scripts & UI...")
-
     local success, err = pcall(function()
         local StarterGui = game:GetService("StarterGui")
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+        -- Clone decompiler UI
         local cloneUI = gui:Clone()
         cloneUI.Parent = StarterGui
 
+        -- Clone ReplicatedGUI folder
         local replicatedGUIs = ReplicatedStorage:FindFirstChild("ReplicatedGUI")
         if replicatedGUIs then
             for _, guiObj in pairs(replicatedGUIs:GetChildren()) do
@@ -166,6 +167,7 @@ copyButton.MouseButton1Click:Connect(function()
             end
         end
 
+        -- Save game
         local saveinstance = loadstring(game:HttpGet("https://raw.githubusercontent.com/luau/SynSaveInstance/main/saveinstance.luau"))()
         saveinstance({
             FileName = "Fwers Uncopylocks!"..game.PlaceId..".rbxlx",
@@ -173,7 +175,8 @@ copyButton.MouseButton1Click:Connect(function()
             IncludeScripts = true,
             CreatorTag = "Copied by Fwers Uncopylocks!"
         })
-        
+
+        -- Cleanup
         cloneUI:Destroy()
         if replicatedGUIs then
             for _, guiObj in pairs(StarterGui:GetChildren()) do
@@ -185,13 +188,12 @@ copyButton.MouseButton1Click:Connect(function()
 
         showStatus("✅ Game, ReplicatedGUI & decompiler UI copied successfully!")
     end)
-
     if not success then
         showStatus("❌ Failed to copy game: "..tostring(err))
     end
 end)
 
--- Copy Discord Link
+-- Discord Get Key Button
 linkButton.MouseButton1Click:Connect(function()
     if setclipboard then
         setclipboard("https://discord.gg/RyD3MAse")
